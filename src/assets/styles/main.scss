@@ -1,0 +1,84 @@
+body{
+  margin: 0;
+  color: #333;
+  background: #F3F6F6;
+  .el-button + .el-button{
+    margin-left: 5px;
+  }
+}
+.lx-button--text{
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  &.active, &:hover{
+    color: #698EFC;
+  }
+  &.drak{
+    color: #888;
+  }
+}
+.el-pagination .el-select .el-input{
+  width: 60px;
+}
+.el-pagination{
+  font-weight: 300;
+}
+.el-pagination__total,.el-pagination__sizes,.el-pagination__jump,.el-pagination button{
+  font-weight: 300;
+}
+.el-pager li.active{
+  background: #698EFC;
+  color: #FFF;
+}
+.lx-list{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.elContain{
+  .el-aside{
+    background:#E7F0F3;
+    height:100vh;
+  }
+  .el-header{
+    padding:0;
+  }
+  .el-submenu__icon-arrow-wrp{
+    display: inline-block;
+  }
+  .el-footer.mainFooter{
+    height:46px !important;
+    line-height:46px;
+    font-size:10px;
+    color:#BFBFBF;
+  }
+  .el-submenu__title i{
+    color:#fff;
+  }
+  .el-menu--horizontal > .el-submenu.is-active .el-submenu__title i{
+    color:#46A9D4;
+  }
+  .el-menu--horizontal > .el-menu-item.is-active ,.el-menu--horizontal > .el-submenu.is-active .el-submenu__title{
+    border-bottom: 4px solid #46A9D4;
+    font-size: 16px;
+  }
+  .el-menu.el-menu--horizontal{
+    padding:0 16px;
+  }
+}
+/*.elMenuApp{*/
+  .el-menu--popup{
+    margin-top:0 !important;
+    background-color:#fff !important;
+    min-width:100px !important;
+  }
+  .el-menu--horizontal .el-menu .el-menu-item{
+    background-color:#fff !important;
+    color:#46A9D4 !important;
+  }
+
+/*}*/

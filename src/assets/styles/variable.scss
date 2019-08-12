@@ -1,0 +1,17 @@
+/* 改变主题色变量 */
+$--color-primary: #698EFC;
+/* 改变 icon 字体路径变量，必需 */
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+/* Paginationrgb(42, 98, 209)
+-------------------------- */
+$--pagination-font-size: 12px !default;
+$--pagination-fill: #FFF !default;
+$--pagination-color: #666 !default;
+$--pagination-border-radius: 0px !default;
+$--pagination-button-color: #666 !default;
+$--pagination-button-width: 28px !default;
+$--pagination-button-height: 25px !default;
+$--pagination-button-disabled-color: #c0c4cc !default;
+$--pagination-button-disabled-fill: #FFF !default;
+$--pagination-hover-fill: $--color-primary !default;
+$--pagination-hover-color: #FFF !default;

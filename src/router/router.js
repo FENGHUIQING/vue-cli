@@ -14,5 +14,13 @@ export default[
       title: '测试'
     },
     component:  r => require.ensure([], () => r(require('@/components/HelloWorld')), 'HelloWorld')
+  },
+  {
+    name: 'live',
+    path: '/live',
+    meta: {
+      title: '直播'
+    },
+    component:  r => require.ensure([], () => r(require('@/iview/live/index.vue')), 'live')
   }
 ]
