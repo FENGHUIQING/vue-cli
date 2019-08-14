@@ -1,10 +1,33 @@
 <div class="first">
   <el-row>
-    <el-col :span="6">
-      <div class="h-img">
-        <img src="../../assets/img/0.jpg" alt="">
-
-      </div>
+    <el-col :lx="4" :lg="4" :md="8" class="h-img-col6">
+      <router-link tag="a" target="_blank" :to="{name:'live',query:{liveid:123}}" class="h-bigbox">
+        <div class="h-img">
+          <img src="../../assets/img/0.jpg" alt="">
+          <div class="h-home">
+            <span class="h-id">房间ID : 10010010</span>
+            <span class="h-active">直播中</span>
+          </div>
+        </div>
+        <div class="h-titbox">
+          <div class="h-title">
+            谁家的小仙女走丢了…
+          </div>
+          <div class="h-name">
+            <div class="fl">
+              <span class="h-head fl">
+                <img src="../../assets/img/0.jpg" alt="" width="25" >
+              </span>
+              <span class="fl" style="padding-left:6px;">小花花</span>
+            </div>
+            <div class="fr">
+              <i class="el-icon-user"></i>
+              <span>19992</span>
+            </div>
+          </div>
+        </div>
+      </router-link>
     </el-col>
+
   </el-row>
 </div>

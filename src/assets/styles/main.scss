@@ -46,6 +46,8 @@ body{
   }
   .el-header{
     padding:0;
+    padding-left: 200px;
+    background: rgb(80, 82, 117);
   }
   .el-submenu__icon-arrow-wrp{
     display: inline-block;
@@ -70,15 +72,12 @@ body{
     padding:0 16px;
   }
 }
-/*.elMenuApp{*/
-  .el-menu--popup{
-    margin-top:0 !important;
-    background-color:#fff !important;
-    min-width:100px !important;
-  }
-  .el-menu--horizontal .el-menu .el-menu-item{
-    background-color:#fff !important;
-    color:#46A9D4 !important;
-  }
-
-/*}*/
+.el-menu--popup{
+  margin-top:0 !important;
+  background-color:#fff !important;
+  min-width:100px !important;
+}
+.el-menu--horizontal .el-menu .el-menu-item{
+  background-color:#fff !important;
+  color:#46A9D4 !important;
+}

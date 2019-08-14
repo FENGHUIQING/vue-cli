@@ -1,11 +1,12 @@
 <template>
   <div id="app">
     <el-container class="elContain">
-      <el-aside width="200px">
+      <!--<el-aside width="200px">
         <div class="top-logo">互动运营平台</div>
-      </el-aside>
+      </el-aside>-->
       <el-container>
         <el-header>
+          <div class="top-logo">互动运营平台</div>
           <el-menu
             :default-active="activeIndex"
             class="elMenuApp"
@@ -27,7 +28,7 @@
             <span class="logoOut">退出</span>
           </div>
         </el-header>
-        <el-main>
+        <el-main class="main-con">
           <router-view/>
         </el-main>
         <el-footer class="mainFooter">© 2018 PDMI, Inc. All rights reserved. 京ICP备16032907号-2</el-footer>
@@ -59,12 +60,21 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
 }
+.main-con{
+  /*min-height: calc(100vh-120px);*/
+  min-height: 86vh;
+}
 .top-logo{
   height:60px;
   line-height: 60px;
   background: #46A9D4;
   text-align: center;
   color:#fff;
+  /*去掉右侧*/
+  position: absolute;
+  left: 0;
+  top:0;
+  width:200px;
 }
 .right-role{
   position: absolute;
