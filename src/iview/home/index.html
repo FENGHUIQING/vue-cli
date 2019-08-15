@@ -1,5 +1,18 @@
 <div class="first">
   <el-row>
+    <div class="fr">
+      <el-radio-group v-model="radio" style="line-height:40px;margin-right:16px;">
+        <el-radio :label="1">已开播</el-radio>
+        <el-radio :label="2">未开播</el-radio>
+      </el-radio-group>
+      <el-input
+        placeholder="请输入…"
+        suffix-icon="el-icon-search"
+        v-model="search" style="width:260px;">
+      </el-input>
+    </div>
+  </el-row>
+  <el-row>
     <el-col :lx="4" :lg="4" :md="8" class="h-img-col6">
       <router-link tag="a" target="_blank" :to="{name:'live',query:{liveid:123}}" class="h-bigbox">
         <div class="h-img">

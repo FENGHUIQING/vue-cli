@@ -1,4 +1,8 @@
+const livebox = r => require.ensure([], () => r(require('../../components/liveel.vue')))
 export default {
+  components:{
+    livebox
+  },
   data(){
     return {
       live:'直播页面js'
@@ -9,7 +13,7 @@ export default {
       count:3
     })
     console.log(webim)
-    this.webimLogin()
+    // this.webimLogin()
   },
   methods:{
     webimLogin(){
