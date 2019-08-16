@@ -7,6 +7,8 @@ import config from './config'
 import router from './router'
 import store from './store'
 import http from './http'
+import { vueBaberrage } from 'vue-baberrage'
+Vue.use(vueBaberrage)
 
 import './assets/styles/index.scss'
 Vue.prototype.$conf = config

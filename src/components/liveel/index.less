@@ -1,0 +1,29 @@
+#video-container{
+  width:65%;
+  height:35vw;
+  position: relative;
+  float: left;
+  .baberrage-stage{
+    z-index: 99999999;
+  }
+  .baberrage-item.normal{
+    background:none !important;
+  }
+  .vcp-player{
+    /*background:url('../../assets/img/35.jpeg') no-repeat;
+    background-size:cover;*/
+    overflow: hidden;
+  }
+  .vcp-player::before{
+    content:'';
+    position:absolute;
+    top:-10px;
+    left:-10px;
+    width:110%;
+    height:110%;
+    background:transparent url(../../assets/img/35.jpeg) center center no-repeat;
+    filter:blur(15px);
+    z-index:-1;
+    background-size:cover;
+  }
+}

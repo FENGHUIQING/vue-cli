@@ -1,28 +1,40 @@
-<template>
-  <div id="video-container">
-
-  </div>
-</template>
-
-<script>
+import { MESSAGE_TYPE } from 'vue-baberrage'
 export default {
   name: 'TencentPlayer',
   data () {
     return {
       player:null,
-      vwidth:800,
-      vheight:450
+      msg: 'Hello vue-baberrage',
+      barrageIsShow: true,
+      currentId : 0,
+      barrageLoop: false,
+      barrageList: []
     }
   },
   created(){
     console.log(TcPlayer)
-    this.vwidth = parseInt(document.body.offsetWidth *.9*.65);
-    console.log(this.vwidth)
+    // this.addToList();
   },
   mounted(){
     this.init();
   },
   methods:{
+    // 弹幕为空
+    sayHi(){
+      console.log('暂无评论！！')
+    },
+    // 有新的数据就加入到弹幕中
+    addToList(){
+      this.$store.state.barrageList.push({
+        id: ++this.currentId,
+        avatar: "https://apic.douyucdn.cn/upload/avatar_v3/201908/2a902a500c41473790e51583ed988ac9_middle.jpg",
+        msg: this.msg,
+        time: 5,
+        type: MESSAGE_TYPE.NORMAL,
+      })
+      // this.barrageList.push()
+      //  console.log('点击',this.barrageList)
+    },
     getParams(name){
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
       let r = window.location.search.substr(1).match(reg);
@@ -43,15 +55,15 @@ export default {
           autoplay = (this.getParams('autoplay') == 'true' ? true : false);
           console.log(this.getParams('width'))
       let options = {
-          flv: 'http://11547.liveplay.myqcloud.com/live/feng.flv',
-          m3u8: 'http://11547.liveplay.myqcloud.com/live/feng.m3u8',
+          flv: 'http://11547.liveplay.myqcloud.com/live/1014.flv',
+          m3u8: 'http://11547.liveplay.myqcloud.com/live/1014.m3u8',
           // rtmp: rtmp,
           // flv: flv,
           // m3u8: m3u8 ,
           // mp4: mp4 || '//1256993030.vod2.myqcloud.com/d520582dvodtransgzp1256993030/7732bd367447398157015849771/v.f30.mp4',
           coverpic: coverpic || {
               style: 'cover',
-              src: '//vodplayerinfo-10005041.file.myqcloud.com/3035579109/vod_paster_pause/paster_pause1469013308.jpg'
+              // src: '//vodplayerinfo-10005041.file.myqcloud.com/3035579109/vod_paster_pause/paster_pause1469013308.jpg'
           },
           // autoplay: autoplay ? true : false,
           autoplay:  true,
@@ -62,16 +74,8 @@ export default {
       }
       this.player = new TcPlayer('video-container', options);
       this.player.play();
-      window.qcplayer = player;
+      window.qcplayer = this.player;
     }
 
   }
 }
-</script>
-
-<style lang="scss" scoped>
-#video-container{
-  width:65%;
-  height:35vw;
-}
-</style>

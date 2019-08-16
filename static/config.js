@@ -33,7 +33,8 @@
 
   window.__DEV__ = true
 
-  var host = 'http://mp.dev.hubpd.com/'
+  // var host = 'http://mp.dev.hubpd.com/gateway/LIVE/'
+  var host = 'http://192.168.198.222:9001/live/'
   var hostUeditor = 'http://mp.dev.hubpd.com/xmt/'
 
   var fileRouter = 'http://mp.dev.hubpd.com/'

@@ -1,6 +1,28 @@
 <div>
   <div class="live-box">
-    <livebox> </livebox>
+    <livebox ref="livebox"> </livebox>
+    <div class="barList scroll-event">
+    </div>
+    <div class="flag-box">
+      <div class="fl">
+        <span>切断直播</span>
+        <el-switch
+          v-model="value"
+          active-color="#13ce66"
+          inactive-color="#ff4949">
+        </el-switch>
+      </div>
+      <div class="fl">
+        <span>评论开关</span>
+        <el-switch
+          v-model="plvalue"
+          active-color="#13ce66"
+          inactive-color="#ff4949">
+        </el-switch>
+      </div>
+    </div>
+
+    <el-button type="button"  @click="liveChild">主要按钮</el-button>
   </div>
 </div>
 

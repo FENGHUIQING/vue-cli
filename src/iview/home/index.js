@@ -6,11 +6,11 @@ export default {
     }
   },
   created(){
-    // this.getLivelist();
+    this.getLivelist();
   },
   methods:{
     getLivelist(){
-      this.$http.get('api/live/pc',{
+      this.$http.get('api/live/pc/',{
         params:{
           pageNum:1,
           pageSize:10,

@@ -14,5 +14,13 @@ export default[
       title: '直播'
     },
     component:  r => require.ensure([], () => r(require('@/iview/live/index.vue')), 'live')
+  },
+  {
+    name: 'tanmu',
+    path: '/tanmu',
+    meta: {
+      title: '弹幕'
+    },
+    component:  r => require.ensure([], () => r(require('@/components/tanmu.vue')), 'tanmu')
   }
 ]

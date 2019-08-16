@@ -87,3 +87,22 @@
 .fr{
   float:right;
 }
+/*滚动条设置*/
+.scroll-event::-webkit-scrollbar{
+  width:4px;
+  height:4px;
+}
+.scroll-event::-webkit-scrollbar-track{
+  background: #f6f6f6;
+  border-radius:2px;
+}
+.scroll-event::-webkit-scrollbar-thumb{
+  background: #aaa;
+  border-radius:2px;
+}
+.scroll-event::-webkit-scrollbar-thumb:hover{
+  background: #747474;
+}
+.scroll-event::-webkit-scrollbar-corner{
+  background: #f6f6f6;
+}
