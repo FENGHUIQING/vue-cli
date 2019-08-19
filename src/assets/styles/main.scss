@@ -74,10 +74,17 @@ body{
 }
 .el-menu--popup{
   margin-top:0 !important;
-  background-color:#fff !important;
-  min-width:100px !important;
+  background-color:#46A9D4 !important;
+  min-width:108px !important;
 }
 .el-menu--horizontal .el-menu .el-menu-item{
-  background-color:#fff !important;
-  color:#46A9D4 !important;
+  background-color:#46A9D4 !important;
+  color:#fff !important;
+  text-align: center;
+  a{
+    color:#fff;
+  }
+}
+a{
+  text-decoration: none;
 }

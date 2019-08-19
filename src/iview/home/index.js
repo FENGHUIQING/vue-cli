@@ -10,7 +10,7 @@ export default {
   },
   methods:{
     getLivelist(){
-      this.$http.get('api/live/pc/',{
+      this.$http.get('/api/web/live/getList',{
         params:{
           pageNum:1,
           pageSize:10,

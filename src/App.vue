@@ -18,7 +18,11 @@
            >
             <el-submenu index="1">
               <template slot="title">直播秀</template>
-              <el-menu-item index="2-1">直播监控</el-menu-item>
+              <el-menu-item index="2-1" >
+                <router-link :to="{name:'home'}">
+                  直播监控
+                </router-link>
+              </el-menu-item>
             </el-submenu>
             <el-menu-item index="2">拍客</el-menu-item>
             <el-menu-item index="3">圈子</el-menu-item>
@@ -48,7 +52,7 @@ export default {
   methods:{
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
-    },
+    }
   }
 }
 </script>

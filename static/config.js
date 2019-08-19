@@ -34,7 +34,8 @@
   window.__DEV__ = true
 
   // var host = 'http://mp.dev.hubpd.com/gateway/LIVE/'
-  var host = 'http://192.168.198.222:9001/live/'
+  // http://192.168.198.222:9001/live/api/web/live/getList?pageNum=1&pageSize=10&status=0
+  var host = 'http://mp.dev.hubpd.com/gateway/LIVE/live/'
   var hostUeditor = 'http://mp.dev.hubpd.com/xmt/'
 
   var fileRouter = 'http://mp.dev.hubpd.com/'
