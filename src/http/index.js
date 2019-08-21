@@ -48,7 +48,7 @@ return Promise.reject(error)
 })
   // Add a response interceptor
 ajax.interceptors.response.use(function (response) {
-  console.log(response,'请求结果')
+  // console.log(response,'请求结果')
   if (response.data && response.data.status && (response.data.status === 100 || response.data.status === 1500)) {
     // Modal.confirm({
     //     title: '退出',

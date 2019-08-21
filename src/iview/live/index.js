@@ -1,4 +1,5 @@
 const livebox = r => require.ensure([], () => r(require('../../components/liveel/liveel.vue')))
+import { MESSAGE_TYPE } from 'vue-baberrage'
 export default {
   components:{
     livebox
@@ -11,18 +12,18 @@ export default {
       loginInfo:{},
       listeners:{},
       newGroup:'',
+      barrageList:this.$store.state.barrageList
     }
   },
   mounted(){
-    this.webimLogin()
+    this.getuserInfo();
   },
   created(){
+
     // this.logout()
     // this.$store.commit('set',{
     //   count:3
     // })
-    // console.log(webim)
-    // this.webimLogin()
   },
   computed:{
   },
@@ -30,17 +31,20 @@ export default {
 
   },
   methods:{
-    liveChild(){
-      this.$refs.livebox.addToList()
+    // 获取用户信息
+    getuserInfo(){
+      this.$http.get('/api/web/imAdminInfo').then(res=>{
+        if(res.data.status == 200){
+          let data = res.data.data;
+          this.loginInfo.sdkAppID = data.sdkappid;
+          this.loginInfo.appIDAt3rd = data.sdkappid;
+          this.loginInfo.identifier = data.admin;
+          this.loginInfo.userSig = data.usersig;
+          this.webimLogin()
+        }
+      })
     },
     webimLogin(){
-      // 用户信息
-      this.loginInfo = {
-        sdkAppID:1400237068,
-        appIDAt3rd:1400237068,
-        identifier:'admin',
-        userSig:'eAEtzE0LgjAYB-DvsmshT26uJXQIpDyoYbPAbquteqjJcCJB9N0T7fr7v3xIlcnA66dyDjWJFwwgpEvgYj4mHVozaMSjFRMh5ZN6vJOYFAe5o6K4bvf57KJolsoyyftH*TpDm1jR2Ao3vj6l2B-XZBqat8N2OOTABMBkvWmHszCAfwe1aTq84chKW2zI9wep-jDL'
-      }
       //监听连接状态回调变化事件
       var onConnNotify = function (resp) {
         var info;
@@ -99,23 +103,6 @@ export default {
         }
       };
       this.sdkLogin();
-      // if(webim.checkLogin){ // 已登录
-      //   this.joinGroup()
-      //   // this.initRecentContactList();
-      // }else{
-      //   webim.login(loginInfo,listeners,{
-      //     isLogOn:false
-      //   },
-      //   (resp)=>{
-      //     console.log('登录成功',resp)
-      //     this.joinGroup();
-      //     // this.initRecentContactList();
-      //   },
-      //   (err) =>{
-      //     console.log(err.ErrorInfo)
-      //   })
-      // }
-
     },
     // 消息已读通知
     onMsgReadedNotify(notify) {
@@ -149,12 +136,223 @@ export default {
       if (msgList && msgList.length){
         for (var i = msgList.length - 1; i >= 0; i--) { //遍历消息，按照时间从后往前
             var msg = msgList[i];
-            //console.warn(msg);
-            webim.Log.warn('receive a new avchatroom group msg: ' + msg.getFromAccountNick());
             //显示收到的消息
-            // showMsg(msg);
+            this.convertMsgtoText(msg);
         }
       }
+    },
+    convertMsgtoText(msg){
+      let elems = msg.getElems();
+      let type = 0;
+      let content = "";
+      let mesgText = "";
+      let elm = 0;
+      for(let i in elems){
+        elm = elems[i];
+        type = elm.getType(); //获取元素类型
+        content = elm.getContent(); //获取元素对象
+        console.log('webim.MSG_ELEMENT_TYPE.TEXT',content)
+        switch (type){
+          case webim.MSG_ELEMENT_TYPE.TEXT:
+            console.log(111)
+            mesgText = this.convertTextMsgToHtml(content);
+            break;
+          case webim.MSG_ELEMENT_TYPE.GROUP_TIP:
+          console.log(222)
+            mesgText = this.convertGroupTipMsgToHtml(content);
+            break;
+          case webim.MSG_ELEMENT_TYPE.CUSTOM:
+            console.log(333333)
+            mesgText = this.convertCustomMsgToHtml(content);
+          default:
+            webim.Log.error('未知消息元素类型: elemType=' + type);
+            break;
+        }
+      }
+      console.log('最终文本：',mesgText)
+      this.$store.state.barrageList.push({
+        id: ++this.currentId,
+        avatar: "https://apic.douyucdn.cn/upload/avatar_v3/201908/2a902a500c41473790e51583ed988ac9_middle.jpg",
+        msg: mesgText,
+        time: 5,
+        type: MESSAGE_TYPE.NORMAL,
+      })
+    },
+    //解析文本消息元素
+    convertTextMsgToHtml(content) {
+        return content.getText();
+    },
+    //解析自定义消息元素
+    convertCustomMsgToHtml(content) {
+      console.log("content:",content)
+      let data = JSON.parse(content.getData());
+      if(!data.data){
+        return false;
+      }
+      let cmdType = data.data.cmd;
+      let text = ""
+      switch(cmdType){
+        case 1:
+          text = data.data.msg;
+          break;
+        // case 2:
+        //   text = '进入直播间'
+        //   break;
+        // case 3:
+        //   text = "退出房间";
+        //   break;
+        default:
+          console.log("无法解析的自定义消息");
+          break;
+      }
+      // let desc = content.getDesc();
+      // let ext = content.getExt();
+      return text;
+    },
+    // 解析群提示消息
+    convertGroupTipMsgToHtml(content) {
+        var WEB_IM_GROUP_TIP_MAX_USER_COUNT = 10;
+        var text = "";
+        var maxIndex = WEB_IM_GROUP_TIP_MAX_USER_COUNT - 1;
+        var opType, opUserId, userIdList;
+        var memberCount;
+        opType = content.getOpType(); //群提示消息类型（操作类型）
+        opUserId = content.getOpUserId(); //操作人id
+        userIdList = content.getUserInfo();
+        switch (opType) {
+            case webim.GROUP_TIP_TYPE.JOIN: //加入群
+                //text += opUserId + "邀请了";
+                for (var m in userIdList) {
+                    if (userIdList[m].NickName != undefined) {
+                        text += userIdList[m].NickName + ",";
+                    } else {
+                        text += userIdList[m].UserId + ",";
+                    }
+                    if (userIdList.length > WEB_IM_GROUP_TIP_MAX_USER_COUNT && m == maxIndex) {
+                        text += "等" + userIdList.length + "人";
+                        break;
+                    }
+                }
+                text = text.substring(0, text.length - 1);
+                text += "进入房间";
+                //房间成员数加1
+                // memberCount = $('#user-icon-fans').html();
+                // $('#user-icon-fans').html(parseInt(memberCount) + 1);
+                break;
+            case webim.GROUP_TIP_TYPE.QUIT: //退出群
+              // console.log('退出群聊：',content)
+                // var quitName = content.getQuitGorupName()
+                text += opUserId + "离开房间";
+                //房间成员数减1
+                // memberCount = parseInt($('#user-icon-fans').html());
+                // if (memberCount > 0) {
+                //     $('#user-icon-fans').html(memberCount - 1);
+                // }
+                break;
+            case webim.GROUP_TIP_TYPE.KICK: //踢出群
+                text += opUserId + "将";
+                for (var m in userIdList) {
+                    if (userIdList[m].NickName != undefined) {
+                        text += userIdList[m].NickName + ",";
+                    } else {
+                        text += userIdList[m].UserId + ",";
+                    }
+                    if (userIdList.length > WEB_IM_GROUP_TIP_MAX_USER_COUNT && m == maxIndex) {
+                        text += "等" + userIdList.length + "人";
+                        break;
+                    }
+                }
+                text += "踢出该群";
+                break;
+            case webim.GROUP_TIP_TYPE.SET_ADMIN: //设置管理员
+                text += opUserId + "将";
+                for (var m in userIdList) {
+                    if (userIdList[m].NickName != undefined) {
+                        text += userIdList[m].NickName + ",";
+                    } else {
+                        text += userIdList[m].UserId + ",";
+                    }
+                    if (userIdList.length > WEB_IM_GROUP_TIP_MAX_USER_COUNT && m == maxIndex) {
+                        text += "等" + userIdList.length + "人";
+                        break;
+                    }
+                }
+                text += "设为管理员";
+                break;
+            case webim.GROUP_TIP_TYPE.CANCEL_ADMIN: //取消管理员
+                text += opUserId + "取消";
+                for (var m in userIdList) {
+                    if (userIdList[m].NickName != undefined) {
+                        text += userIdList[m].NickName + ",";
+                    } else {
+                        text += userIdList[m].UserId + ",";
+                    }
+                    if (userIdList.length > WEB_IM_GROUP_TIP_MAX_USER_COUNT && m == maxIndex) {
+                        text += "等" + userIdList.length + "人";
+                        break;
+                    }
+                }
+                text += "的管理员资格";
+                break;
+
+            case webim.GROUP_TIP_TYPE.MODIFY_GROUP_INFO: //群资料变更
+                text += opUserId + "修改了群资料：";
+                var groupInfoList = content.getGroupInfoList();
+                var type, value;
+                for (var m in groupInfoList) {
+                    type = groupInfoList[m].getType();
+                    value = groupInfoList[m].getValue();
+                    switch (type) {
+                        case webim.GROUP_TIP_MODIFY_GROUP_INFO_TYPE.FACE_URL:
+                            text += "群头像为" + value + "; ";
+                            break;
+                        case webim.GROUP_TIP_MODIFY_GROUP_INFO_TYPE.NAME:
+                            text += "群名称为" + value + "; ";
+                            break;
+                        case webim.GROUP_TIP_MODIFY_GROUP_INFO_TYPE.OWNER:
+                            text += "群主为" + value + "; ";
+                            break;
+                        case webim.GROUP_TIP_MODIFY_GROUP_INFO_TYPE.NOTIFICATION:
+                            text += "群公告为" + value + "; ";
+                            break;
+                        case webim.GROUP_TIP_MODIFY_GROUP_INFO_TYPE.INTRODUCTION:
+                            text += "群简介为" + value + "; ";
+                            break;
+                        default:
+                            text += "未知信息为:type=" + type + ",value=" + value + "; ";
+                            break;
+                    }
+                }
+                break;
+
+            case webim.GROUP_TIP_TYPE.MODIFY_MEMBER_INFO: //群成员资料变更(禁言时间)
+                text += opUserId + "修改了群成员资料:";
+                var memberInfoList = content.getMemberInfoList();
+                var userId, shutupTime;
+                for (var m in memberInfoList) {
+                    userId = memberInfoList[m].getUserId();
+                    shutupTime = memberInfoList[m].getShutupTime();
+                    text += userId + ": ";
+                    if (shutupTime != null && shutupTime !== undefined) {
+                        if (shutupTime == 0) {
+                            text += "取消禁言; ";
+                        } else {
+                            text += "禁言" + shutupTime + "秒; ";
+                        }
+                    } else {
+                        text += " shutupTime为空";
+                    }
+                    if (memberInfoList.length > WEB_IM_GROUP_TIP_MAX_USER_COUNT && m == maxIndex) {
+                        text += "等" + memberInfoList.length + "人";
+                        break;
+                    }
+                }
+                break;
+            default:
+                text += "未知群提示消息类型：type=" + opType;
+                break;
+        }
+        return text;
     },
     onMsgNotify(newMsgList) {
         let newMsg;
@@ -170,9 +368,8 @@ export default {
         },
         (resp)=>{
           console.log('登录成功',resp)
-          // this.createGroup();
           this.joinGroup();
-          this.initRecentContactList();
+          // this.initRecentContactList();
         },
         (err) =>{
           console.log(err.ErrorInfo)
@@ -190,7 +387,6 @@ export default {
         if (!fromAccountNick) {
             fromAccountNick = fromAccount;
         }
-
         //解析消息
         //获取会话类型
         //webim.SESSION_TYPE.GROUP-群聊，
@@ -200,7 +396,6 @@ export default {
         //会话类型为群聊时，子类型为：webim.GROUP_MSG_SUB_TYPE
         //会话类型为私聊时，子类型为：webim.C2C_MSG_SUB_TYPE
         subType = msg.getSubType();
-
         switch (sessType) {
             case webim.SESSION_TYPE.C2C: //私聊消息
                 switch (subType) {
@@ -242,21 +437,16 @@ export default {
     // 加入群
     joinGroup(){
       let option={
-        'GroupId':1014,
-        // 'GroupId':this.newGroup,
+        'GroupId':this.$route.query.roomId,
         'ApplyMsg':'',
         'UserDefinedField':''
       }
       webim.applyJoinBigGroup(option,(resp)=>{ //applyJoinBigGroup、applyJoinGroup
         let joinedStatus = resp.JoinedStatus; //JoinedSuccess--成功加入，WaitAdminApproval--等待管理员审核
         if (resp.JoinedStatus && joinedStatus == "JoinedSuccess") {
-            //刷新我的群组列表
-            //getJoinedGroupListHigh(getGroupsCallbackOK);
-            alert('成功加入该群');
-            // setInterval(()=>{this.initRecentContactList()},2000)
-            // this.initRecentContactList();
+            console.log('成功加入该群');
         } else {
-            alert('申请成功，请等待群主审核');
+            console.log('申请成功，请等待群主审核');
         }
       },(err)=>{
         console.log(err.ErrorInfo)
@@ -280,11 +470,10 @@ export default {
     },
     // 获取信息列表
     initRecentContactList(){
-      console.log('获取回话消息：')
       webim.getRecentContactList({ //获取会话列表
         'Count':20 //最近的回话数，最大为100
       },(resp)=>{
-        console.log('resp_;',resp);
+        console.log('会话resp_;',resp);
         if (resp.SessionItem){
           let items = resp.SessionItem;
           console.log('items:',items);

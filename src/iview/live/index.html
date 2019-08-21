@@ -1,7 +1,10 @@
 <div>
   <div class="live-box">
-    <livebox ref="livebox"> </livebox>
+    <livebox ref="livebox" > </livebox>
     <div class="barList scroll-event">
+      <div v-for="(item,index) in barrageList" :key="index">
+        {{item.msg}}
+      </div>
     </div>
     <div class="flag-box">
       <div class="fl">
@@ -21,8 +24,6 @@
         </el-switch>
       </div>
     </div>
-
-    <el-button type="button"  @click="liveChild">添加弹幕</el-button>
   </div>
 </div>
 
