@@ -10,7 +10,8 @@ export default {
       currentId : 0,
       barrageLoop: false,
       barrageList: this.$store.state.barrageList,
-      playInfo:{}
+      playInfo:{},
+
     }
   },
   created(){
@@ -34,6 +35,7 @@ export default {
           this.$nextTick(()=>{
             this.init(flv,hls);
           })
+          this.$emit('forbidChange',this.playInfo)
         }
       })
     },

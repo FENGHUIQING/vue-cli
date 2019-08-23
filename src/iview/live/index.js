@@ -6,13 +6,19 @@ export default {
   },
   data(){
     return {
-      // infoMsg:[],
+      roomId:this.$route.query.roomId,
+      currentId:0,
       value:true,
       plvalue:true,
       loginInfo:{},
       listeners:{},
       newGroup:'',
-      barrageList:this.$store.state.barrageList
+      barrageList:this.$store.state.barrageList,
+      barrageList1:[],
+      nickName:'主播',
+      isLogin:false,
+      sendInput:'',
+      userData:{}
     }
   },
   mounted(){
@@ -20,10 +26,6 @@ export default {
   },
   created(){
 
-    // this.logout()
-    // this.$store.commit('set',{
-    //   count:3
-    // })
   },
   computed:{
   },
@@ -31,6 +33,70 @@ export default {
 
   },
   methods:{
+    // 初始化直播状态
+    forbidChange(data){
+      this.userData = data;
+      this.value = data.forbid == 1 ? false :true;
+      this.plvalue = data.shutup == 'Off' ? false : true;
+    },
+    // 修改直播状态
+    liveChange(state){
+      if(!state){
+        this.cutLive(state);
+      }else{
+        this.concatLive(state);
+      }
+    },
+    // 切断直播
+    cutLive(state){
+      this.$http.post('/api/web/liveMange/forbidLiveStream',{
+        roomid:this.roomId,
+        forbidday:0
+      }).then(res =>{
+        if(res.data.status == 200){
+          this.$notify({
+            title: '',
+            message: '直播流已切断！',
+            type: 'success'
+          });
+        }else{
+          this.value = !state
+          this.$notify.error({
+            title: '',
+            message: res.data.message ? res.data.message :'操作失败',
+          });
+        }
+      })
+    },
+    // 回复直播
+    concatLive(state){
+      this.$http.post('/api/web/liveMange/resumeLiveStream',{
+        roomid:this.roomId
+      }).then(res=>{
+        if(res.data.status == 200){
+          this.$notify({
+            title: '',
+            message: '直播流已恢复！',
+            type: 'success'
+          });
+        }else{
+          this.value = !state
+          this.$notify.error({
+            title: '',
+            message: res.data.message ? res.data.message :'操作失败',
+          });
+        }
+      })
+    },
+    // 改变禁言
+    changeShutup(data){
+      let shutup = data == true ? 'On' : 'Off';
+      this.$http.put('/api/web/im/?id='+this.roomId+'&shutUp='+shutup).then(res=>{
+        if(res.data.status == 200){
+
+        }
+      })
+    },
     // 获取用户信息
     getuserInfo(){
       this.$http.get('/api/web/imAdminInfo').then(res=>{
@@ -161,7 +227,7 @@ export default {
           console.log(222)
             mesgText = this.convertGroupTipMsgToHtml(content);
             break;
-          case webim.MSG_ELEMENT_TYPE.CUSTOM:
+          case webim.MSG_ELEMENT_TYPE.CUSTOM: //自定义消息
             console.log(333333)
             mesgText = this.convertCustomMsgToHtml(content);
           default:
@@ -170,13 +236,23 @@ export default {
         }
       }
       console.log('最终文本：',mesgText)
-      this.$store.state.barrageList.push({
-        id: ++this.currentId,
-        avatar: "https://apic.douyucdn.cn/upload/avatar_v3/201908/2a902a500c41473790e51583ed988ac9_middle.jpg",
-        msg: mesgText,
-        time: 5,
-        type: MESSAGE_TYPE.NORMAL,
-      })
+
+      if(mesgText && mesgText != ''){
+        let obj = {
+          id: ++this.currentId,
+          avatar: "",//头图
+          msg: mesgText,
+          time: 5,
+          type: MESSAGE_TYPE.NORMAL,
+          nickName:this.nickName
+        }
+        this.$store.state.barrageList.push(obj);
+        this.barrageList1.push(obj);
+        this.$nextTick(()=>{
+          let div = document.getElementById('barList');
+          div.scrollTop = div.scrollHeight
+        })
+      }
     },
     //解析文本消息元素
     convertTextMsgToHtml(content) {
@@ -184,29 +260,38 @@ export default {
     },
     //解析自定义消息元素
     convertCustomMsgToHtml(content) {
-      console.log("content:",content)
       let data = JSON.parse(content.getData());
       if(!data.data){
         return false;
       }
       let cmdType = data.data.cmd;
       let text = ""
+      let userType = data.data.userType;
       switch(cmdType){
-        case 1:
+        case '1':
           text = data.data.msg;
           break;
-        // case 2:
-        //   text = '进入直播间'
-        //   break;
-        // case 3:
-        //   text = "退出房间";
-        //   break;
+        case '6': //开启禁言
+          text = '开启禁言'
+          break;
+        case '7':
+          text = "关闭禁言";
+          break;
         default:
-          console.log("无法解析的自定义消息");
+          console.log("cmdType：",cmdType);
           break;
       }
-      // let desc = content.getDesc();
-      // let ext = content.getExt();
+       switch(userType){
+        case '1':
+          this.nickName = '管理员';
+          break;
+        case '2':
+          this.nickName = '主播';
+          break;
+        default:
+           this.nickName = data.data.userName;
+          break;
+      }
       return text;
     },
     // 解析群提示消息
@@ -225,8 +310,10 @@ export default {
                 for (var m in userIdList) {
                     if (userIdList[m].NickName != undefined) {
                         text += userIdList[m].NickName + ",";
+                        this.nickName = userIdList[m].NickName
                     } else {
                         text += userIdList[m].UserId + ",";
+                        this.nickName = userIdList[m].UserId
                     }
                     if (userIdList.length > WEB_IM_GROUP_TIP_MAX_USER_COUNT && m == maxIndex) {
                         text += "等" + userIdList.length + "人";
@@ -234,20 +321,11 @@ export default {
                     }
                 }
                 text = text.substring(0, text.length - 1);
-                text += "进入房间";
-                //房间成员数加1
-                // memberCount = $('#user-icon-fans').html();
-                // $('#user-icon-fans').html(parseInt(memberCount) + 1);
+                // text += "进入房间";
+                text = "进入房间";
                 break;
             case webim.GROUP_TIP_TYPE.QUIT: //退出群
-              // console.log('退出群聊：',content)
-                // var quitName = content.getQuitGorupName()
-                text += opUserId + "离开房间";
-                //房间成员数减1
-                // memberCount = parseInt($('#user-icon-fans').html());
-                // if (memberCount > 0) {
-                //     $('#user-icon-fans').html(memberCount - 1);
-                // }
+                text +=  "离开房间";
                 break;
             case webim.GROUP_TIP_TYPE.KICK: //踢出群
                 text += opUserId + "将";
@@ -369,7 +447,6 @@ export default {
         (resp)=>{
           console.log('登录成功',resp)
           this.joinGroup();
-          // this.initRecentContactList();
         },
         (err) =>{
           console.log(err.ErrorInfo)
@@ -437,7 +514,7 @@ export default {
     // 加入群
     joinGroup(){
       let option={
-        'GroupId':this.$route.query.roomId,
+        'GroupId':this.roomId,
         'ApplyMsg':'',
         'UserDefinedField':''
       }
@@ -445,27 +522,12 @@ export default {
         let joinedStatus = resp.JoinedStatus; //JoinedSuccess--成功加入，WaitAdminApproval--等待管理员审核
         if (resp.JoinedStatus && joinedStatus == "JoinedSuccess") {
             console.log('成功加入该群');
+            this.isLogin = true;
         } else {
-            console.log('申请成功，请等待群主审核');
+          console.log('申请成功，请等待群主审核');
         }
       },(err)=>{
         console.log(err.ErrorInfo)
-      })
-    },
-    // 创建群
-    createGroup(){
-      let option={
-        'Type':'Public',
-        'Name':'qingqing',
-        'MemberList':[]
-      }
-      webim.createGroup(option,(resp)=>{
-        this.newGroup = resp.GroupId
-        // 加入群
-        this.joinGroup();
-        console.log('群组创建成功',resp);
-      },(err)=>{
-        console.log(err.ErrorInfo);
       })
     },
     // 获取信息列表
@@ -499,6 +561,127 @@ export default {
                 // updateSessDiv(sess.type(), sess.id(), sess.name(), sess.unread());
             // }
         }
+    },
+// 发送普通消息
+    sendGroupLoveMsg() {
+        // if (!loginInfo.identifier) { //未登录
+        //     if (accountMode == 1) { //托管模式
+        //         //将account_type保存到cookie中,有效期是1天
+        //         webim.Tool.setCookie('accountType', loginInfo.accountType, 3600 * 24);
+        //         //调用tls登录服务
+        //         this.getuserInfo();
+        //     } else { //独立模式
+        //         alert('请填写帐号和票据');
+        //     }
+        //     return;
+        // }
+
+        // if (!selToID) {
+        //     alert("您还没有进入房间，暂不能聊天");
+        //     return;
+        // }
+        //获取消息内容
+        let msgtosend = this.sendInput;
+        let msgLen = webim.Tool.getStrBytes(msgtosend);
+        let selType = webim.SESSION_TYPE.GROUP;
+        let selToID = this.roomId;
+        let selSessHeadUrl = ''
+        if (msgtosend.length < 1) {
+            console.log("发送的消息不能为空!");
+            return;
+        }
+
+        let maxLen, errInfo;
+        // if (selType == webim.SESSION_TYPE.GROUP) {
+        //     maxLen = webim.MSG_MAX_LENGTH.GROUP;
+        //     errInfo = "消息长度超出限制(最多" + Math.round(maxLen / 3) + "汉字)";
+        // } else {
+        //     maxLen = webim.MSG_MAX_LENGTH.C2C;
+        //     errInfo = "消息长度超出限制(最多" + Math.round(maxLen / 3) + "汉字)";
+        // }
+        if (msgLen > maxLen) {
+            console.log('长度错误',errInfo);
+            return;
+        }
+
+        // if (!selSess) {
+            let selSess = new webim.Session(selType, selToID, selToID, selSessHeadUrl, Math.round(new Date().getTime() / 1000));
+        // }
+        let isSend = true; //是否为自己发送
+        let seq = -1; //消息序列，-1表示sdk自动生成，用于去重
+        let random = Math.round(Math.random() * 4294967296); //消息随机数，用于去重
+        let msgTime = Math.round(new Date().getTime() / 1000); //消息时间戳
+        let subType = webim.GROUP_MSG_SUB_TYPE.COMMON; //消息子类型
+        // if (selType == webim.SESSION_TYPE.GROUP) {
+        //     //群消息子类型如下：
+        //     //webim.GROUP_MSG_SUB_TYPE.COMMON-普通消息,
+        //     //webim.GROUP_MSG_SUB_TYPE.LOVEMSG-点赞消息，优先级最低
+        //     //webim.GROUP_MSG_SUB_TYPE.TIP-提示消息(不支持发送，用于区分群消息子类型)，
+        //     //webim.GROUP_MSG_SUB_TYPE.REDPACKET-红包消息，优先级最高
+        //     subType = webim.GROUP_MSG_SUB_TYPE.COMMON;
+
+        // } else {
+        //     //C2C消息子类型如下：
+        //     //webim.C2C_MSG_SUB_TYPE.COMMON-普通消息,
+        //     subType = webim.C2C_MSG_SUB_TYPE.COMMON;
+        // }
+        let msgInfo = {
+              cmd : 'CustomCmdMsg',
+              data :    {
+                  cmd : 1,
+                  msg : this.sendInput,
+                  userAvatar : "",
+                  userName : this.userData.streamerName,
+                  userType:1
+              },
+              userAvatar : "",
+              userName : this.userData.streamerName
+          }
+        let msg = new webim.Msg(selSess, isSend, seq, random, msgTime, msgInfo, subType);
+
+        //解析文本和表情
+        let expr = /\[[^[\]]{1,3}\]/mg;
+        let emotions = msgtosend.match(expr);
+        let text_obj, face_obj, tmsg, emotionIndex, emotion, restMsgIndex;
+        // if (!emotions || emotions.length < 1) {
+        //     text_obj = new webim.Msg.Elem.Text(msgtosend);
+        //     msg.addText(text_obj);
+        // } else { //有表情
+
+        //     for (var i = 0; i < emotions.length; i++) {
+        //         tmsg = msgtosend.substring(0, msgtosend.indexOf(emotions[i]));
+        //         if (tmsg) {
+        //             text_obj = new webim.Msg.Elem.Text(tmsg);
+        //             msg.addText(text_obj);
+        //         }
+        //         emotionIndex = webim.EmotionDataIndexs[emotions[i]];
+        //         emotion = webim.Emotions[emotionIndex];
+        //         if (emotion) {
+        //             face_obj = new webim.Msg.Elem.Face(emotionIndex, emotions[i]);
+        //             msg.addFace(face_obj);
+        //         } else {
+        //             text_obj = new webim.Msg.Elem.Text(emotions[i]);
+        //             msg.addText(text_obj);
+        //         }
+        //         restMsgIndex = msgtosend.indexOf(emotions[i]) + emotions[i].length;
+        //         msgtosend = msgtosend.substring(restMsgIndex);
+        //     }
+        //     if (msgtosend) {
+        //         text_obj = new webim.Msg.Elem.Text(msgtosend);
+        //         msg.addText(text_obj);
+        //     }
+        // }
+        webim.sendMsg(msg, (resp) => {
+            // if (selType == webim.SESSION_TYPE.C2C) { //私聊时，在聊天窗口手动添加一条发的消息，群聊时，长轮询接口会返回自己发的消息
+            //     showMsg(msg);
+            // }
+            webim.Log.info("发消息成功");
+            this.sendInput = '';
+
+        }, function(err) {
+            webim.Log.error("发消息失败:" + err.ErrorInfo);
+            alert("发消息失败:" + err.ErrorInfo);
+        });
     }
   }
 }
