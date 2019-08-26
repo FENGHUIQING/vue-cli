@@ -18,7 +18,7 @@ export default {
       nickName:'主播',
       isLogin:false,
       sendInput:'',
-      userData:{}
+      userData:{},
     }
   },
   mounted(){
@@ -37,7 +37,7 @@ export default {
     forbidChange(data){
       this.userData = data;
       this.value = data.forbid == 1 ? false :true;
-      this.plvalue = data.shutup == 'Off' ? false : true;
+      this.plvalue = data.shutup == 'Off' ? true : false;
     },
     // 修改直播状态
     liveChange(state){
@@ -90,10 +90,18 @@ export default {
     },
     // 改变禁言
     changeShutup(data){
-      let shutup = data == true ? 'On' : 'Off';
+      let shutup = data == true ? 'Off' : 'On';
+      let infoType = data == true ? '7' : '6'
       this.$http.put('/api/web/im/?id='+this.roomId+'&shutUp='+shutup).then(res=>{
         if(res.data.status == 200){
-
+          // 发送消息
+          this.sendGroupLoveMsg(infoType);
+        }else{
+          this.plvalue = !data
+          this.$notify.error({
+            title: '',
+            message: res.data.message ? res.data.message :'操作失败',
+          });
         }
       })
     },
@@ -185,11 +193,11 @@ export default {
             // console.debug('更新C2C未读数:',notify.From_Account,unread);
             //更新页面的未读数角标
 
-            if (unread > 0) {
-                $("#badgeDiv_" + notify.From_Account).text(unread).show();
-            } else {
-                $("#badgeDiv_" + notify.From_Account).val("").hide();
-            }
+            // if (unread > 0) {
+            //     // $("#badgeDiv_" + notify.From_Account).text(unread).show();
+            // } else {
+            //     // $("#badgeDiv_" + notify.From_Account).val("").hide();
+            // }
         }
     },
     // 多端登录被T
@@ -272,9 +280,11 @@ export default {
           text = data.data.msg;
           break;
         case '6': //开启禁言
+          this.plvalue = false;
           text = '开启禁言'
           break;
         case '7':
+          this.plvalue = true;
           text = "关闭禁言";
           break;
         default:
@@ -441,6 +451,8 @@ export default {
     },
     //sdk登录
     sdkLogin() {
+      console.log('是否登录！！',webim.checkLogin())
+      if(!webim.checkLogin()){
        webim.login(this.loginInfo,this.listeners,{
           isLogOn:false
         },
@@ -451,6 +463,7 @@ export default {
         (err) =>{
           console.log(err.ErrorInfo)
         })
+      }
     },
     //处理消息（私聊(包括普通消息和全员推送消息)，普通群(非直播聊天室)消息）
     handlderMsg(msg) {
@@ -563,32 +576,36 @@ export default {
         }
     },
 // 发送普通消息
-    sendGroupLoveMsg() {
-        // if (!loginInfo.identifier) { //未登录
-        //     if (accountMode == 1) { //托管模式
-        //         //将account_type保存到cookie中,有效期是1天
-        //         webim.Tool.setCookie('accountType', loginInfo.accountType, 3600 * 24);
-        //         //调用tls登录服务
-        //         this.getuserInfo();
-        //     } else { //独立模式
-        //         alert('请填写帐号和票据');
-        //     }
-        //     return;
-        // }
+    sendGroupLoveMsg(infoType) {
+        if (!this.loginInfo.identifier) { //未登录
+            if (accountMode == 1) { //托管模式
+                //将account_type保存到cookie中,有效期是1天
+                webim.Tool.setCookie('accountType', loginInfo.accountType, 3600 * 24);
+                //调用tls登录服务
+                // this.getuserInfo();
+            } else { //独立模式
+                alert('请填写帐号和票据');
+            }
+            return;
+        }
 
         // if (!selToID) {
         //     alert("您还没有进入房间，暂不能聊天");
         //     return;
         // }
         //获取消息内容
-        let msgtosend = this.sendInput;
+        let msgtosend = infoType == '1' ? this.sendInput : '修改评论状态！';
         let msgLen = webim.Tool.getStrBytes(msgtosend);
         let selType = webim.SESSION_TYPE.GROUP;
         let selToID = this.roomId;
         let selSessHeadUrl = ''
         if (msgtosend.length < 1) {
-            console.log("发送的消息不能为空!");
-            return;
+          this.$notify.error({
+            title: '',
+            message: '消息不能为空!',
+          });
+          // console.log("发送的消息不能为空!");
+          return;
         }
 
         let maxLen, errInfo;
@@ -625,28 +642,35 @@ export default {
         //     //webim.C2C_MSG_SUB_TYPE.COMMON-普通消息,
         //     subType = webim.C2C_MSG_SUB_TYPE.COMMON;
         // }
-        let msgInfo = {
-              cmd : 'CustomCmdMsg',
-              data :    {
-                  cmd : 1,
-                  msg : this.sendInput,
-                  userAvatar : "",
-                  userName : this.userData.streamerName,
-                  userType:1
-              },
-              userAvatar : "",
-              userName : this.userData.streamerName
-          }
-        let msg = new webim.Msg(selSess, isSend, seq, random, msgTime, msgInfo, subType);
+        console.log('this.sendInput:',this.sendInput)
+
+        let msg = new webim.Msg(selSess, isSend, seq, random, msgTime,this.loginInfo.identifier, subType);
 
         //解析文本和表情
         let expr = /\[[^[\]]{1,3}\]/mg;
-        let emotions = msgtosend.match(expr);
+        let emotions = this.sendInput.match(expr);
         let text_obj, face_obj, tmsg, emotionIndex, emotion, restMsgIndex;
-        // if (!emotions || emotions.length < 1) {
-        //     text_obj = new webim.Msg.Elem.Text(msgtosend);
-        //     msg.addText(text_obj);
-        // } else { //有表情
+        let msgInfo = {
+            "cmd" : "CustomCmdMsg",
+            "data" : {
+                "cmd" : infoType,
+                "msg" : infoType == '1' ?this.sendInput : '修改评论状态！',
+                "userAvatar" : "",
+                "userName" : this.userData.streamerName,
+                "userType" : infoType
+            },
+            "userAvatar" : "",
+            "userName" : this.userData.streamerName
+        }
+        let data = JSON.stringify(msgInfo)
+        let desc= 'pc_Info';
+        let ext = '1'
+
+        if (!emotions || emotions.length < 1) {
+            text_obj = new webim.Msg.Elem.Custom(data,desc,ext);
+            msg.addCustom(text_obj);
+        }
+        // else { //有表情
 
         //     for (var i = 0; i < emotions.length; i++) {
         //         tmsg = msgtosend.substring(0, msgtosend.indexOf(emotions[i]));
@@ -675,12 +699,23 @@ export default {
             // if (selType == webim.SESSION_TYPE.C2C) { //私聊时，在聊天窗口手动添加一条发的消息，群聊时，长轮询接口会返回自己发的消息
             //     showMsg(msg);
             // }
-            webim.Log.info("发消息成功");
-            this.sendInput = '';
+          console.log("发消息成功",resp);
+          this.sendInput = '';
 
-        }, function(err) {
-            webim.Log.error("发消息失败:" + err.ErrorInfo);
-            alert("发消息失败:" + err.ErrorInfo);
+        }, (err)=> {
+          console.log("发消息失败:" + err.ErrorInfo);
+          if(!this.plvalue){
+            this.$notify.error({
+              title: '',
+              message: '禁言状态开启！',
+            });
+          }else{
+            this.$notify.error({
+              title: '',
+              message: '发送失败！',
+            });
+          }
+
         });
     }
   }

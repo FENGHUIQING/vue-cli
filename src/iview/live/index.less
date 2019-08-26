@@ -2,32 +2,39 @@
   width:90%;
   margin:0 auto;
 }
-.barList{
+.barList-box{
   width:34%;
   float:right;
   height:35vw;
   background:#F8F8F8;
   border:1px solid #ccc;
-  overflow-y: auto;
+  overflow: hidden;
   text-align: left;
-  padding:12px;
-  box-sizing: border-box;
-  line-height: 34px;
   position: relative;
-  padding-bottom:90px;
-  .blueBox{
-    color: #2b94ff;
-    padding-right:10px;
+  padding:4px 0px 46px 12px;
+  box-sizing: border-box;
+  .barList{
+    width:100%;
+    height:100%;
+    line-height: 34px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    .blueBox{
+      color: #2b94ff;
+      padding-right:10px;
+    }
   }
   .sendInfo{
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background: #fff;
-    width:100%;
-    height:88px;
-    overflow: hidden;
-  }
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width:100%;
+      height:46px;
+      padding:0 7px;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
 }
 .flag-box{
   height:60px;

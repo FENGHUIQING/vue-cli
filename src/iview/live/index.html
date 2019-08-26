@@ -1,14 +1,16 @@
 <div>
   <div class="live-box">
     <livebox ref="livebox" @forbidChange="forbidChange"> </livebox>
-    <div class="barList scroll-event" id="barList">
-      <div v-for="(item,index) in barrageList1" :key="index">
-       <span class="blueBox">{{item.nickName}} : </span> {{item.msg}}
+    <div class="barList-box">
+      <div class="barList scroll-event" id="barList">
+        <div v-for="(item,index) in barrageList1" :key="index">
+          <span class="blueBox">{{item.nickName}} : </span> {{item.msg}}
+        </div>
       </div>
       <!--发送消息-->
       <div class="sendInfo">
-        <el-input v-model="sendInput" placeholder="请输入内容" style="width:80%"></el-input>
-        <el-button type="primary" style="width:18%" @click="sendGroupLoveMsg">发送</el-button>
+        <el-input v-model="sendInput" placeholder="请输入内容" style="width:80%" @keyup.enter.native="sendGroupLoveMsg('1')"></el-input>
+        <el-button type="primary" style="width:18%" @click="sendGroupLoveMsg('1')">发送</el-button>
       </div>
     </div>
     <div class="flag-box">

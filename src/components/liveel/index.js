@@ -15,13 +15,10 @@ export default {
     }
   },
   created(){
-    this.getUserinfo();
-    // this.addToList();
+
   },
   mounted(){
-     // 获取用户信息
-
-    // this.init();
+    this.getUserinfo();
   },
   methods:{
     // 获取用户信息
@@ -42,18 +39,6 @@ export default {
     // 弹幕为空
     sayHi(){
       console.log('暂无评论！！')
-    },
-    // 有新的数据就加入到弹幕中
-    addToList(){
-      this.$store.state.barrageList.push({
-        id: ++this.currentId,
-        avatar: "https://apic.douyucdn.cn/upload/avatar_v3/201908/2a902a500c41473790e51583ed988ac9_middle.jpg",
-        msg: this.msg,
-        time: 5,
-        type: MESSAGE_TYPE.NORMAL,
-      })
-      // this.barrageList.push()
-      //  console.log('点击',this.barrageList)
     },
     getParams(name){
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
@@ -88,6 +73,7 @@ export default {
           Flash: false
       }
       this.player = new TcPlayer('video-container', options);
+      console.log('this.player:',this.player)
       this.player.play();
       window.qcplayer = this.player;
 

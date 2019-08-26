@@ -45,36 +45,7 @@
           </div>
         </div>
       </router-link>
-      <!--<div v-else class="h-bigbox">
-        <div class="h-img">
-          <div class="mask-box"></div>
-          <img :src="item.liveInCover" alt="">
-          <div class="h-home">
-            <span class="h-id">房间ID : {{item.id}}</span>
-            <span class="h-active" v-if="radio==1">直播中</span>
-            <span class="h-active h-active-no" v-else>未开播</span>
-          </div>
-        </div>
-        <div class="h-titbox">
-          <div class="h-title">
-            {{item.liveTitle}}
-          </div>
-          <div class="h-name">
-            <div class="fl">
-              <span class="h-head fl">
-                <img :src="item.liveCover" alt="" width="25" >
-              </span>
-              <span class="fl" style="padding-left:6px;">{{item.streamerName}}</span>
-            </div>
-            <div class="fr">
-              <i class="el-icon-user"></i>
-              <span>{{item.onlinenum}}</span>
-            </div>
-          </div>
-        </div>
-      </div>-->
     </el-col>
-
   </el-row>
   <el-row class="no-live-img" v-if="noList">
     <img src="../../assets/img/noLive.svg" alt="">
