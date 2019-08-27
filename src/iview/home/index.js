@@ -4,9 +4,9 @@ export default {
       loading:true,
       radio:1,
       search:'',
-      totle:0,
+      total:0,
       liveList:[],
-      pageNum:0,
+      pageNum:1,
       pageSize:10,
       noList:false,
       type:'list'
@@ -18,11 +18,18 @@ export default {
   methods:{
     // 修改直播状态
     radioChange(data){
+      this.pageNum = 1;
       this.getLivelist()
     },
     // 搜索
     searchBlur(){
       this.type = 'all';
+      this.pageNum = 1;
+      this.getLivelist();
+    },
+    changePage(page){
+      console.log('当前页：',page);
+      this.pageNum = page;
       this.getLivelist();
     },
     getLivelist(){
@@ -37,11 +44,18 @@ export default {
           condition : this.search
         }
       }).then(res=>{
-        if(res.data.status == 200){
+        if(res.status == 200){
           let data = res.data
           this.liveList = data.data.list;
-          this.noList = (this.liveList.length && this.liveList.length>0) ? false : true
+          this.noList = (this.liveList.length && this.liveList.length>0) ? false : true;
+          this.total = data.data.total;
         }
+        this.loading = false;
+      }).catch(err=>{
+        this.$notify.error({
+          title: '',
+          message: '请求失败！',
+        });
         this.loading = false;
       })
     }

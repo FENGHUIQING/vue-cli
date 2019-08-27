@@ -1,10 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 Vue.use(Vuex)
+Vue.use(Vuex)
+var xmttoken = localStorage.getItem('xmttoken') || ''
 const store = new Vuex.Store({
   state: {
     count:1,
-    barrageList:[]
+    barrageList:[],
+    xmttoken:xmttoken
   },
   getters: {
 

@@ -16,7 +16,7 @@
   <el-row
   v-loading="loading"
   element-loading-text="拼命加载中"
-  class="live-content">
+  class="live-content" v-if="!noList">
     <el-col :lx="4" :lg="4" :md="8" class="h-img-col6" v-for="(item,index) in liveList" :key="index">
       <router-link tag="a" target="_blank" :to="{name:'live',query:{roomId:item.id}}" class="h-bigbox">
         <div class="h-img">
@@ -46,6 +46,15 @@
         </div>
       </router-link>
     </el-col>
+  </el-row>
+  <el-row class="page-box" v-if="total>0">
+    <el-pagination
+      layout="prev, pager, next"
+      :total="total"
+      :page-size="pageSize"
+      :current-page="pageNum"
+      @current-change="changePage">
+    </el-pagination>
   </el-row>
   <el-row class="no-live-img" v-if="noList">
     <img src="../../assets/img/noLive.svg" alt="">

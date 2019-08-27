@@ -1,11 +1,23 @@
 export default[
+  {
+    path: '/',
+    redirect: '/home'
+  },
    {
     name: 'home',
-    path: '/',
+    path: '/home',
     meta: {
       title: '首页'
     },
     component:  r => require.ensure([], () => r(require('@/iview/home/index.vue')), 'home')
+  },
+  {
+    name: 'login',
+    path: '/login',
+    meta: {
+      title: '登录'
+    },
+    component:  r => require.ensure([], () => r(require('@/iview/login/index.vue')), 'login')
   },
   {
     name: 'live',

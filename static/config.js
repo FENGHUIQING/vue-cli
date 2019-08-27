@@ -1,7 +1,7 @@
 (function(){
     // 配置
   var params = {
-    client_id: '8723136989824972880b54c9c901f1b1',
+    client_id: 'd42e95b38af541a3b705b442c1c93b88',
     redirect_uri: encodeURIComponent(window.location.origin + '/#/home'),//回调地址
     response_type: 'code',
     status: ''
@@ -9,7 +9,7 @@
 
   // 登出
   var paramsOut = {
-    secret_key:'d83c1fa20598428fa01e52a80eb686e3',
+    secret_key:'1ef7f236cf134a05908d691ac7e40c92',
     redirectUrl: encodeURIComponent(window.location.origin + '/#/login')
   }
 

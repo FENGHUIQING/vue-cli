@@ -169,11 +169,11 @@ export default {
         "onC2cEventNotifys": onC2cEventNotifys //监听C2C系统消息通道
           ,
         "onAppliedDownloadUrl": (data)=>{
-          console.debug(data);
+          // console.debug(data);
         } //申请文件/音频下载地址的回调
           ,
         "onLongPullingNotify": (data) => {
-          console.debug('onLongPullingNotify', data)
+          // console.debug('onLongPullingNotify', data)
         }
       };
       this.sdkLogin();
@@ -206,7 +206,7 @@ export default {
     },
     //监听大群新消息（普通，点赞，提示，红包）
     onBigGroupMsgNotify(msgList) {
-      console.log("msgList直播中：",msgList)
+      // console.log("msgList直播中：",msgList)
       if (msgList && msgList.length){
         for (var i = msgList.length - 1; i >= 0; i--) { //遍历消息，按照时间从后往前
             var msg = msgList[i];
@@ -225,26 +225,21 @@ export default {
         elm = elems[i];
         type = elm.getType(); //获取元素类型
         content = elm.getContent(); //获取元素对象
-        console.log('webim.MSG_ELEMENT_TYPE.TEXT',content)
+        // console.log('webim.MSG_ELEMENT_TYPE.TEXT',content)
         switch (type){
           case webim.MSG_ELEMENT_TYPE.TEXT:
-            console.log(111)
             mesgText = this.convertTextMsgToHtml(content);
             break;
           case webim.MSG_ELEMENT_TYPE.GROUP_TIP:
-          console.log(222)
             mesgText = this.convertGroupTipMsgToHtml(content);
             break;
           case webim.MSG_ELEMENT_TYPE.CUSTOM: //自定义消息
-            console.log(333333)
             mesgText = this.convertCustomMsgToHtml(content);
           default:
             webim.Log.error('未知消息元素类型: elemType=' + type);
             break;
         }
       }
-      console.log('最终文本：',mesgText)
-
       if(mesgText && mesgText != ''){
         let obj = {
           id: ++this.currentId,
@@ -451,7 +446,6 @@ export default {
     },
     //sdk登录
     sdkLogin() {
-      console.log('是否登录！！',webim.checkLogin())
       if(!webim.checkLogin()){
        webim.login(this.loginInfo,this.listeners,{
           isLogOn:false
@@ -548,7 +542,6 @@ export default {
       webim.getRecentContactList({ //获取会话列表
         'Count':20 //最近的回话数，最大为100
       },(resp)=>{
-        console.log('会话resp_;',resp);
         if (resp.SessionItem){
           let items = resp.SessionItem;
           console.log('items:',items);
@@ -566,7 +559,6 @@ export default {
     initUnreadMsgCount() {
         let sess;
         let sessMap = webim.MsgStore.sessMap();
-        // console.error(sessMap)
         for (let i in sessMap) {
             sess = sessMap[i];
             // if (selToID && selToID != sess.id()) { //更新其他聊天对象的未读消息数
@@ -577,6 +569,13 @@ export default {
     },
 // 发送普通消息
     sendGroupLoveMsg(infoType) {
+      if(!this.plvalue){
+        this.$notify.error({
+          title: '',
+          message: '禁言状态开启！',
+        });
+        return;
+      }
         if (!this.loginInfo.identifier) { //未登录
             if (accountMode == 1) { //托管模式
                 //将account_type保存到cookie中,有效期是1天
@@ -604,7 +603,6 @@ export default {
             title: '',
             message: '消息不能为空!',
           });
-          // console.log("发送的消息不能为空!");
           return;
         }
 
@@ -642,8 +640,6 @@ export default {
         //     //webim.C2C_MSG_SUB_TYPE.COMMON-普通消息,
         //     subType = webim.C2C_MSG_SUB_TYPE.COMMON;
         // }
-        console.log('this.sendInput:',this.sendInput)
-
         let msg = new webim.Msg(selSess, isSend, seq, random, msgTime,this.loginInfo.identifier, subType);
 
         //解析文本和表情
@@ -699,11 +695,9 @@ export default {
             // if (selType == webim.SESSION_TYPE.C2C) { //私聊时，在聊天窗口手动添加一条发的消息，群聊时，长轮询接口会返回自己发的消息
             //     showMsg(msg);
             // }
-          console.log("发消息成功",resp);
           this.sendInput = '';
 
         }, (err)=> {
-          console.log("发消息失败:" + err.ErrorInfo);
           if(!this.plvalue){
             this.$notify.error({
               title: '',

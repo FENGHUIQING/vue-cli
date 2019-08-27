@@ -35,11 +35,9 @@ ajax.interceptors.request.use(function (config) {
       //   return config
       // }
       // config.headers['xmttoken'] = store.state.xmttoken || ''
-      // config.headers['Authorization'] = store.state.xmttoken || ''
-      // config.headers['Authorization'] = store.state.xmttoken || ''
+      config.headers['Authorization'] = store.state.xmttoken || ''
       // config.headers['SiteID'] = store.state.userinfo.siteids || ''
       // config.headers['Access-Control-Allow-Origin'] = '*'
-      // config.headers['origin'] = 'http://localhost:8080'
       // config.headers['Accept'] = 'application/json, text/javascript, */*; q=0.01'
   }
   return config

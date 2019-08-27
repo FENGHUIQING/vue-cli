@@ -5,6 +5,8 @@ import routes from './router'
 import config from '../config'
 import util from '../utils'
 import http from '../http'
+import axios from 'axios'
+import $ from 'jquery'
 
 Vue.use(Router)
 const router = new Router({
@@ -52,6 +54,7 @@ export const loginOut = function () {
       })
     }
 router.beforeEach((to, from, next) => {
+  console.log('to.path:',to.path)
   if(to.path == '/login'){
     const url = `${config.pupPath}/authorize?${config.paramsStr}`
     window.location = url
@@ -75,47 +78,48 @@ router.beforeEach((to, from, next) => {
               xmttoken: currenToken
             })
             localStorage.setItem('xmttoken', currenToken)
-            http.post('api/pupuser').then(({ data }) => {
-              if(data.status == 1){
-                var userinfo = {}
-                if(!data.siteids[0] && data.privs.menu){
-                  userinfo = {
-                    id:data.userid,
-                    operatortype: data.operatortype,
-                    orgId: data.org_id,
-                    username:data.username,
-                    privs:data.privs,
-                    publish:data.publish,
-                    republish:data.republish
-                  }
-                  store.commit('set', { userinfo })
-                  localStorage.setItem('xmtuserinfo', JSON.stringify(userinfo))
-                  router.replace('/site/creatSite')
-                  return;
-                }else{
-                  userinfo = {
-                    id:data.userid,
-                    operatortype: data.operatortype,
-                    orgId: data.org_id,
-                    username:data.username,
-                    privs:data.privs,
-                    publish:data.publish,
-                    siteids:data.siteids[0],
-                    rolecode:data.rolecode ? data.rolecode : [],
-                    republish:data.republish
-                  }
-                }
-                store.commit('set', { userinfo })
-                localStorage.setItem('xmtuserinfo', JSON.stringify(userinfo))
-                router.replace('/home');
-                this.$Message.success('登录成功!')
-              }else{
-                console.log("准备退出！",data.status)
-              }
+            router.replace('/home');
+            // http.post('api/pupuser').then(({ data }) => {
+            //   if(data.status == 1){
+            //     var userinfo = {}
+            //     if(!data.siteids[0] && data.privs.menu){
+            //       userinfo = {
+            //         id:data.userid,
+            //         operatortype: data.operatortype,
+            //         orgId: data.org_id,
+            //         username:data.username,
+            //         privs:data.privs,
+            //         publish:data.publish,
+            //         republish:data.republish
+            //       }
+            //       store.commit('set', { userinfo })
+            //       localStorage.setItem('xmtuserinfo', JSON.stringify(userinfo))
+            //       router.replace('/site/creatSite')
+            //       return;
+            //     }else{
+            //       userinfo = {
+            //         id:data.userid,
+            //         operatortype: data.operatortype,
+            //         orgId: data.org_id,
+            //         username:data.username,
+            //         privs:data.privs,
+            //         publish:data.publish,
+            //         siteids:data.siteids[0],
+            //         rolecode:data.rolecode ? data.rolecode : [],
+            //         republish:data.republish
+            //       }
+            //     }
+            //     store.commit('set', { userinfo })
+            //     localStorage.setItem('xmtuserinfo', JSON.stringify(userinfo))
+            //     router.replace('/home');
+            //     this.$Message.success('登录成功!')
+            //   }else{
+            //     console.log("准备退出！",data.status)
+            //   }
 
-            }).catch(() => {
-              console.log("请求失败")
-            })
+            // }).catch(() => {
+            //   console.log("请求失败")
+            // })
 
           },
           error:(res) =>{
@@ -128,18 +132,14 @@ router.beforeEach((to, from, next) => {
           }
         })
       }
-  }else if (to.path === '/preview/publish') {
-    let token = util.getParamURL('token');
-    store.commit('set', {
-      xmttoken: token
-    })
   }
-  util.title(to.meta.title);
+  // util.title(to.meta.title);
   if(store.state.xmttoken == '' && to.name != 'login'){
     next("/login");
   }else{
     next();
   }
+
 })
 
 router.afterEach((to, from, next) => {
