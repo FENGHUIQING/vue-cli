@@ -5,13 +5,11 @@ export default {
     return {
       roomId:this.$route.query.roomId,
       player:null,
-      msg: 'Hello vue-baberrage',
       barrageIsShow: true,
       currentId : 0,
       barrageLoop: false,
       barrageList: this.$store.state.barrageList,
       playInfo:{},
-
     }
   },
   created(){
@@ -68,15 +66,20 @@ export default {
             style: 'cover',
             src:this.playInfo.liveCover
         },
+        // controls:'system',
         x5_player:true,
         autoplay:  true,
+        width: '100%',
+        height: '100%',
         live: true,
-        Flash: true
+        Flash: true,
+        listener:(msg)=>{
+          // console.log('直播回调',msg)
+        }
       }
       window.tcplayer = new TcPlayer('video-container', options);
       console.log('this.player:',window.tcplayer)
-      // // player.play();
-      // window.qcplayer = player;
+      // window.tcplayer.play();
     }
 
   }

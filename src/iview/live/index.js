@@ -276,11 +276,11 @@ export default {
           break;
         case '6': //开启禁言
           this.plvalue = false;
-          text = '开启禁言'
+          text = '关闭了聊天'
           break;
         case '7':
           this.plvalue = true;
-          text = "关闭禁言";
+          text = "恢复了聊天";
           break;
         default:
           console.log("cmdType：",cmdType);
@@ -653,7 +653,7 @@ export default {
                 "msg" : infoType == '1' ?this.sendInput : '修改评论状态！',
                 "userAvatar" : "",
                 "userName" : this.userData.streamerName,
-                "userType" : infoType
+                "userType" : "1"
             },
             "userAvatar" : "",
             "userName" : this.userData.streamerName
