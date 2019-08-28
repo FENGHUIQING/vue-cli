@@ -7,7 +7,7 @@ export default {
       total:0,
       liveList:[],
       pageNum:1,
-      pageSize:10,
+      pageSize:12,
       noList:false,
       type:'list'
     }

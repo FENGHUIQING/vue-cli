@@ -9,7 +9,8 @@
         placeholder="请输入…"
         suffix-icon="el-icon-search"
         v-model="search" style="width:260px;"
-        @blur="searchBlur">
+        @blur="searchBlur"
+        @keyup.enter.native="searchBlur">
       </el-input>
     </div>
   </el-row>
@@ -47,7 +48,7 @@
       </router-link>
     </el-col>
   </el-row>
-  <el-row class="page-box" v-if="total>0">
+  <el-row class="page-box" v-if="total>pageSize">
     <el-pagination
       layout="prev, pager, next"
       :total="total"

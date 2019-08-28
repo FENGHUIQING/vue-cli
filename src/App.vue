@@ -29,7 +29,7 @@
           </el-menu>
           <div class="right-role">
             <span>管理员</span>
-            <span class="logoOut">退出</span>
+            <span class="logoOut" @click="logout">退出</span>
           </div>
         </el-header>
         <el-main class="main-con">
@@ -42,6 +42,8 @@
 </template>
 
 <script>
+import config from './config'
+import $ from 'jquery'
 export default {
   name: 'App',
   data(){
@@ -52,6 +54,39 @@ export default {
   methods:{
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
+    },
+    logout(){
+      let path = `${config.codeToken}/logout`;
+      const url = `${config.pupPath}/logout?${config.paramsOutStr}&t=`+new Date().getTime();
+      if(this.$store.state.xmttoken == undefined || !this.$store.state.xmttoken){
+        window.location.href = url;
+        return;
+      }
+      $.ajax({
+        url:path,
+        headers:{
+          'Authorization':this.$store.state.xmttoken,
+          'Access-Control-Allow-Methods':'*',
+          'Access-Control-Allow-Origin': '*'
+        },
+        type: "PUT",
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        xhrFields:{
+          'Access-Control-Allow-Origin': '*'
+        },
+        async: false,
+        success:(res)=>{
+          localStorage.removeItem("xmttoken");
+          this.$store.commit("set", {
+            xmttoken: ""
+          });
+          window.location.href = url;
+          return
+        },
+        error:(res) => {
+          console.log(res,"退出失败")
+        }
+      })
     }
   }
 }

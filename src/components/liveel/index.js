@@ -66,7 +66,7 @@ export default {
         // mp4: mp4 || '//1256993030.vod2.myqcloud.com/d520582dvodtransgzp1256993030/7732bd367447398157015849771/v.f30.mp4',
         coverpic: {
             style: 'cover',
-            src:''//this.playInfo.liveCover
+            src:this.playInfo.liveCover
         },
         x5_player:true,
         autoplay:  true,
